@@ -3,7 +3,7 @@ import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { createWalletClient, http } from "viem";
 import { sepolia } from "viem/chains";
-import { SmartAccountSigner, WalletClientSigner } from "@alchemy/aa-core"
+import { SmartAccountSigner, LocalAccountSigner } from "@alchemy/aa-core"
 
 export async function newTurnkeySigner () {
   const turnkeyClient = new TurnkeyClient(
@@ -41,20 +41,8 @@ export async function newTurnkeySigner () {
     privateKeyId: process.env.TURNKEY_PRIVATE_KEY_ID!,
   });
 
-  const client = createWalletClient({
-    account: turnkeyAccount,
-    chain: sepolia,
-    transport: http(
-      /* 
-        Turnkey does not provide a node connection, so our signer requires you to bring
-        your own transport. Good thing we're integrating with the best in the biz.
-      */
-      `https://eth-sepolia.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`
-    ),
-  });
-
-  const turnkeySigner: SmartAccountSigner = new WalletClientSigner(
-      client
+  const turnkeySigner: SmartAccountSigner = new LocalAccountSigner(
+    turnkeyAccount
   );
 
   return turnkeySigner;
